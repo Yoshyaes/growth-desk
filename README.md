@@ -57,3 +57,23 @@ products/echoself/         voice legacy product, highest ethical care
 If the streak is under 5 of 10 weekdays at day 30, the habit did not take.
 Stop building features and make an honest call. This is written down here
 so it cannot be quietly ignored later.
+
+## The application
+
+A local, file-backed UI over the same files. Zero dependencies, no build step.
+
+```bash
+node server/index.js       # http://127.0.0.1:4780
+node --test 'tests/*.test.js'
+```
+
+It binds to localhost only. It has no database, because `products/` is the
+database. It has no Post button, because it does not post.
+
+| Path | Screen |
+|---|---|
+| `/<product>/today` | The move queue with the ethics gate above the fold |
+| `/<product>/move/<id>` | The draft editor with the live voice lint |
+| `/<product>/metrics` | The four numbers and the streak |
+| `/<product>/channels` | The gate made visible |
+| `/<product>/product/<file>` | Tagged claims and the proof gaps |

@@ -3,6 +3,10 @@
 # Nothing here is verified. Every entry starts at status warming.
 # Run growth-research to fill subscriber counts, rules and sourced pain phrases.
 
+denylist:
+  channels: []
+  patterns: []
+
 channels:
   - id: r/webdev
     kind: reddit

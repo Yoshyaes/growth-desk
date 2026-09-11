@@ -4,6 +4,10 @@
 # Run growth-research to fill subscriber counts, rules and sourced pain
 # phrases. Fred promotes an entry to active only after opening it himself.
 
+denylist:
+  channels: []
+  patterns: []
+
 channels:
   - id: r/SaaS
     kind: reddit

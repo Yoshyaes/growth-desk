@@ -4,6 +4,37 @@
 # permanently off limits and are recorded here as research_only so that
 # growth-research does not keep rediscovering them.
 
+# The machine-readable half of ethics.md. gate.js reads this.
+# ethics.md is the human statement. These two must agree, and the test
+# suite fails if a community named in ethics.md is missing here.
+
+denylist:
+  channels:
+    - r/GriefSupport
+    - r/hospice
+    - r/CaregiverSupport
+    - r/AgingParents
+    - r/cancer
+    - r/ALS
+    - r/dementia
+    - r/Alzheimers
+    - r/widowers
+    - r/SuicideBereavement
+    - r/TerminalIllness
+    - r/palliativecare
+  patterns:
+    - grief
+    - hospice
+    - palliative
+    - terminal
+    - caregiver
+    - bereave
+    - widow
+    - end of life
+    - dying
+    - funeral
+    - memorial
+
 channels:
   - id: partnerships-estate-law
     kind: partnership

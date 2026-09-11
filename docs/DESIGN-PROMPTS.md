@@ -262,7 +262,7 @@ state dot.
   "No em dashes" passing
   "No colons" one hit, with the offending fragment shown inline in mono and
   the character marked, plus a one-tap fix
-  "Banned words" passing, 0 of 68
+  "Banned words" passing, 0 of 105
 
 Below the lint, a proof row. Two chips, each showing a claim from the draft
 with a link back to proof.md. One chip is in the restricted color and reads

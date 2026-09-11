@@ -1,0 +1,290 @@
+#!/usr/bin/env node
+"use strict";
+
+/**
+ * gd - the Growth Desk CLI
+ *
+ * Zero dependencies on purpose. The heaviest thing in this repo should be
+ * the writing, not a node_modules tree.
+ *
+ * Commands
+ *   gd log <product> <move-id> [flags]
+ *   gd streak [--days 14]
+ *   gd metrics [product] [--days 28]
+ *   gd today <product>
+ */
+
+const fs = require("fs");
+const path = require("path");
+
+const ROOT = path.resolve(__dirname, "..");
+const PRODUCTS_DIR = path.join(ROOT, "products");
+const HEADER = "date,product,channel,move_id,move_type,url,replies,qualified_convos,signups,paid,notes";
+const COLS = HEADER.split(",");
+
+/* ---------- tiny csv ---------- */
+
+function csvSplit(line) {
+  const out = [];
+  let cur = "";
+  let inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (inQ) {
+      if (c === '"' && line[i + 1] === '"') { cur += '"'; i++; }
+      else if (c === '"') { inQ = false; }
+      else { cur += c; }
+    } else if (c === '"') { inQ = true; }
+    else if (c === ",") { out.push(cur); cur = ""; }
+    else { cur += c; }
+  }
+  out.push(cur);
+  return out;
+}
+
+function csvCell(v) {
+  const s = String(v == null ? "" : v);
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function readMetrics(product) {
+  const file = metricsPath(product);
+  if (!fs.existsSync(file)) return [];
+  return fs.readFileSync(file, "utf8")
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l && l !== HEADER)
+    .map((l) => {
+      const parts = csvSplit(l);
+      const row = {};
+      COLS.forEach((c, i) => { row[c] = parts[i] === undefined ? "" : parts[i]; });
+      return row;
+    });
+}
+
+function writeMetrics(product, rows) {
+  const body = rows.map((r) => COLS.map((c) => csvCell(r[c])).join(",")).join("\n");
+  fs.writeFileSync(metricsPath(product), HEADER + "\n" + (body ? body + "\n" : ""));
+}
+
+/* ---------- paths and helpers ---------- */
+
+function metricsPath(p) { return path.join(PRODUCTS_DIR, p, "metrics.csv"); }
+function logPath(p, d) { return path.join(PRODUCTS_DIR, p, "logs", d + ".md"); }
+
+function allProducts() {
+  if (!fs.existsSync(PRODUCTS_DIR)) return [];
+  return fs.readdirSync(PRODUCTS_DIR)
+    .filter((d) => fs.statSync(path.join(PRODUCTS_DIR, d)).isDirectory())
+    .sort();
+}
+
+function assertProduct(p) {
+  if (!p || !allProducts().includes(p)) {
+    die("Unknown product " + (p || "(none)") + ". Known: " + allProducts().join(", "));
+  }
+}
+
+function today() { return new Date().toISOString().slice(0, 10); }
+
+function daysAgo(n) {
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() - n);
+  return d.toISOString().slice(0, 10);
+}
+
+function isWeekday(dateStr) {
+  const day = new Date(dateStr + "T12:00:00Z").getUTCDay();
+  return day >= 1 && day <= 5;
+}
+
+function num(v) { const n = parseInt(v, 10); return Number.isFinite(n) ? n : 0; }
+function die(msg) { console.error("gd: " + msg); process.exit(1); }
+
+function parseFlags(argv) {
+  const flags = {};
+  const rest = [];
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a.startsWith("--")) {
+      const key = a.slice(2);
+      const next = argv[i + 1];
+      if (next === undefined || next.startsWith("--")) { flags[key] = "true"; }
+      else { flags[key] = next; i++; }
+    } else { rest.push(a); }
+  }
+  return { flags, rest };
+}
+
+function pad(s, w) { s = String(s); return s + " ".repeat(Math.max(0, w - s.length)); }
+function lpad(s, w) { s = String(s); return " ".repeat(Math.max(0, w - s.length)) + s; }
+
+/* ---------- commands ---------- */
+
+function cmdLog(argv) {
+  const { flags, rest } = parseFlags(argv);
+  const [product, moveId] = rest;
+  assertProduct(product);
+  if (!moveId) die("Missing move id. Usage: gd log <product> <move-id> [flags]");
+
+  const date = flags.date || today();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) die("Bad --date. Use YYYY-MM-DD.");
+
+  const row = {
+    date,
+    product,
+    channel: flags.channel || "",
+    move_id: moveId,
+    move_type: flags.type || "",
+    url: flags.url || "",
+    replies: String(num(flags.replies)),
+    qualified_convos: String(num(flags.convos)),
+    signups: String(num(flags.signups)),
+    paid: String(num(flags.paid)),
+    notes: flags.notes || ""
+  };
+
+  const rows = readMetrics(product);
+  const idx = rows.findIndex((r) => r.move_id === moveId);
+  const updated = idx >= 0;
+  if (updated) {
+    // keep any field the caller did not pass this time
+    const old = rows[idx];
+    COLS.forEach((c) => { if (row[c] === "" || row[c] === "0") { if (old[c]) row[c] = old[c]; } });
+    row.date = old.date;
+    rows[idx] = row;
+  } else {
+    rows.push(row);
+  }
+  rows.sort((a, b) => (a.date + a.move_id).localeCompare(b.date + b.move_id));
+  writeMetrics(product, rows);
+
+  // append to the day's log
+  const lp = logPath(product, date);
+  fs.mkdirSync(path.dirname(lp), { recursive: true });
+  if (!fs.existsSync(lp)) {
+    fs.writeFileSync(lp, "# " + product + " " + date + "\n\n## Sent\n\n");
+  }
+  const line = (updated ? "- update `" : "- `") + moveId + (updated ? "` " : "` ") + (row.move_type || "move") + " to " +
+    (row.channel || "unknown channel") +
+    (row.url ? " " + row.url : "") +
+    "  (replies " + row.replies + ", convos " + row.qualified_convos +
+    ", signups " + row.signups + ", paid " + row.paid + ")" +
+    (row.notes ? "\n  - " + row.notes : "") + "\n";
+  fs.appendFileSync(lp, line);
+
+  console.log((updated ? "updated " : "logged  ") + moveId + "  ->  " + path.relative(ROOT, metricsPath(product)));
+  console.log("        log     ->  " + path.relative(ROOT, lp));
+}
+
+function cmdStreak(argv) {
+  const { flags } = parseFlags(argv);
+  const days = num(flags.days) || 14;
+  const since = daysAgo(days - 1);
+
+  console.log("");
+  console.log("  streak, last " + days + " days (weekdays with at least one sent move)");
+  console.log("");
+
+  let worst = null;
+  for (const p of allProducts()) {
+    const rows = readMetrics(p).filter((r) => r.date >= since);
+    const sent = new Set(rows.map((r) => r.date));
+    let weekdays = 0;
+    let hit = 0;
+    let bar = "";
+    for (let i = days - 1; i >= 0; i--) {
+      const d = daysAgo(i);
+      if (!isWeekday(d)) { bar += "."; continue; }
+      weekdays++;
+      if (sent.has(d)) { hit++; bar += "#"; } else { bar += "_"; }
+    }
+    console.log("  " + pad(p, 10) + " " + bar + "   " + hit + " / " + weekdays);
+    const ratio = weekdays ? hit / weekdays : 0;
+    if (worst === null || ratio < worst) worst = ratio;
+  }
+
+  console.log("");
+  console.log("  # sent   _ weekday missed   . weekend");
+  if (worst !== null && worst < 0.5) {
+    console.log("");
+    console.log("  WARNING. Under 5 of 10 weekdays. See the kill criterion in docs/PRD.md section 11.");
+  }
+  console.log("");
+}
+
+function cmdMetrics(argv) {
+  const { flags, rest } = parseFlags(argv);
+  const days = num(flags.days) || 28;
+  const since = daysAgo(days - 1);
+  const targets = rest.length ? rest : allProducts();
+  targets.forEach(assertProduct);
+
+  console.log("");
+  console.log("  the four numbers, last " + days + " days");
+  console.log("");
+  console.log("  " + pad("product", 10) + lpad("replies", 9) + lpad("convos", 9) + lpad("signups", 9) + lpad("paid", 7) + lpad("moves", 8));
+  console.log("  " + "-".repeat(52));
+
+  const tot = { replies: 0, qualified_convos: 0, signups: 0, paid: 0, moves: 0 };
+  for (const p of targets) {
+    const rows = readMetrics(p).filter((r) => r.date >= since);
+    const s = { replies: 0, qualified_convos: 0, signups: 0, paid: 0 };
+    rows.forEach((r) => { Object.keys(s).forEach((k) => { s[k] += num(r[k]); }); });
+    Object.keys(s).forEach((k) => { tot[k] += s[k]; });
+    tot.moves += rows.length;
+    console.log("  " + pad(p, 10) + lpad(s.replies, 9) + lpad(s.qualified_convos, 9) + lpad(s.signups, 9) + lpad(s.paid, 7) + lpad(rows.length, 8));
+  }
+
+  if (targets.length > 1) {
+    console.log("  " + "-".repeat(52));
+    console.log("  " + pad("total", 10) + lpad(tot.replies, 9) + lpad(tot.qualified_convos, 9) + lpad(tot.signups, 9) + lpad(tot.paid, 7) + lpad(tot.moves, 8));
+  }
+  console.log("");
+  console.log("  page views are not tracked here on purpose");
+  console.log("");
+}
+
+function cmdToday(argv) {
+  const { rest } = parseFlags(argv);
+  const p = rest[0];
+  assertProduct(p);
+  const lp = logPath(p, today());
+  if (!fs.existsSync(lp)) {
+    console.log("\n  no log yet for " + p + " on " + today() + "\n");
+    return;
+  }
+  console.log("\n" + fs.readFileSync(lp, "utf8"));
+}
+
+function usage() {
+  console.log(`
+  gd - the Growth Desk CLI
+
+    gd log <product> <move-id> [flags]   record a sent move
+      --url <url>        --channel <name>    --type <move type>
+      --replies N        --convos N          --signups N       --paid N
+      --notes "..."      --date YYYY-MM-DD
+
+    gd streak [--days 14]                weekdays with at least one sent move
+    gd metrics [product] [--days 28]     the four numbers
+    gd today <product>                   print today's log
+
+  products: ${allProducts().join(", ") || "(none)"}
+`);
+}
+
+/* ---------- main ---------- */
+
+const [cmd, ...argv] = process.argv.slice(2);
+switch (cmd) {
+  case "log": cmdLog(argv); break;
+  case "streak": cmdStreak(argv); break;
+  case "metrics": cmdMetrics(argv); break;
+  case "today": cmdToday(argv); break;
+  case undefined:
+  case "help":
+  case "-h":
+  case "--help": usage(); break;
+  default: die("Unknown command '" + cmd + "'. Run gd help.");
+}

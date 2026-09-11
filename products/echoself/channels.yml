@@ -1,0 +1,97 @@
+# Echoself channels
+#
+# Read ethics.md first. Most of the obvious channels for this product are
+# permanently off limits and are recorded here as research_only so that
+# growth-research does not keep rediscovering them.
+
+channels:
+  - id: partnerships-estate-law
+    kind: partnership
+    gate: open
+    subscribers: null
+    rules_url: null
+    promo_policy: "direct outreach to firms, resource offer only"
+    account: null
+    karma_required: 0
+    cadence_cap_per_week: 5
+    pain_phrases: []
+    status: warming
+    warmed_on: null
+
+  - id: partnerships-senior-living
+    kind: partnership
+    gate: open
+    subscribers: null
+    rules_url: null
+    promo_policy: "activities directors, resource offer only"
+    account: null
+    karma_required: 0
+    cadence_cap_per_week: 5
+    pain_phrases: []
+    status: warming
+    warmed_on: null
+
+  - id: search-intent
+    kind: owned
+    gate: open
+    subscribers: null
+    rules_url: null
+    promo_policy: "own property"
+    account: null
+    karma_required: 0
+    cadence_cap_per_week: 10
+    pain_phrases: []
+    status: active
+    warmed_on: 2026-09-11
+
+  - id: r/genealogy
+    kind: reddit
+    gate: no_first_person_promo
+    subscribers: null
+    rules_url: https://www.reddit.com/r/genealogy/about/rules
+    promo_policy: null
+    account: null
+    karma_required: 100
+    cadence_cap_per_week: 1
+    pain_phrases: []
+    status: warming
+    warmed_on: null
+
+  - id: r/GriefSupport
+    kind: reddit
+    gate: never_post
+    subscribers: null
+    rules_url: https://www.reddit.com/r/GriefSupport/about/rules
+    promo_policy: "off limits permanently, see ethics.md"
+    account: null
+    karma_required: 0
+    cadence_cap_per_week: 0
+    pain_phrases: []
+    status: research_only
+    warmed_on: null
+
+  - id: r/AgingParents
+    kind: reddit
+    gate: never_post
+    subscribers: null
+    rules_url: https://www.reddit.com/r/AgingParents/about/rules
+    promo_policy: "off limits permanently, see ethics.md"
+    account: null
+    karma_required: 0
+    cadence_cap_per_week: 0
+    pain_phrases: []
+    status: research_only
+    warmed_on: null
+
+  - id: r/hospice
+    kind: reddit
+    gate: never_post
+    subscribers: null
+    rules_url: https://www.reddit.com/r/hospice/about/rules
+    promo_policy: "off limits permanently, see ethics.md"
+    account: null
+    karma_required: 0
+    cadence_cap_per_week: 0
+    pain_phrases: []
+    status: research_only
+    warmed_on: null

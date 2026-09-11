@@ -1,0 +1,84 @@
+# Marskel channels
+#
+# Nothing here is verified. Every entry starts at status warming.
+# Run growth-research to fill subscriber counts, rules and sourced pain
+# phrases. Fred promotes an entry to active only after opening it himself.
+
+channels:
+  - id: r/SaaS
+    kind: reddit
+    gate: open
+    subscribers: null          # unverified, do not cite
+    rules_url: https://www.reddit.com/r/SaaS/about/rules
+    promo_policy: "self-promo Saturdays only, unverified"
+    account: null
+    karma_required: 100
+    cadence_cap_per_week: 2
+    pain_phrases: []
+    status: warming
+    warmed_on: null
+
+  - id: r/startups
+    kind: reddit
+    gate: no_first_person_promo
+    subscribers: null
+    rules_url: https://www.reddit.com/r/startups/about/rules
+    promo_policy: "strict, unverified"
+    account: null
+    karma_required: 100
+    cadence_cap_per_week: 3
+    pain_phrases: []
+    status: warming
+    warmed_on: null
+
+  - id: indiehackers
+    kind: forum
+    gate: open
+    subscribers: null
+    rules_url: https://www.indiehackers.com/guidelines
+    promo_policy: "build in public is welcome, unverified"
+    account: null
+    karma_required: 0
+    cadence_cap_per_week: 2
+    pain_phrases: []
+    status: warming
+    warmed_on: null
+
+  - id: x-owned
+    kind: owned
+    gate: open
+    subscribers: null
+    rules_url: null
+    promo_policy: "own account"
+    account: null
+    karma_required: 0
+    cadence_cap_per_week: 5
+    pain_phrases: []
+    status: warming
+    warmed_on: null
+
+  - id: linkedin-owned
+    kind: owned
+    gate: open
+    subscribers: null
+    rules_url: null
+    promo_policy: "own account"
+    account: null
+    karma_required: 0
+    cadence_cap_per_week: 3
+    pain_phrases: []
+    status: warming
+    warmed_on: null
+
+  - id: r/ycombinator
+    kind: reddit
+    gate: never_post
+    subscribers: null
+    rules_url: https://www.reddit.com/r/ycombinator/about/rules
+    promo_policy: "off limits until the account has non-promotional history"
+    account: null
+    karma_required: 0
+    cadence_cap_per_week: 0
+    pain_phrases: []
+    status: research_only
+    warmed_on: null

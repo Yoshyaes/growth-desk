@@ -1,0 +1,83 @@
+# Deckle channels
+#
+# Nothing here is verified. Every entry starts at status warming.
+# Run growth-research to fill subscriber counts, rules and sourced pain phrases.
+
+channels:
+  - id: r/webdev
+    kind: reddit
+    gate: open
+    subscribers: null          # unverified, do not cite
+    rules_url: https://www.reddit.com/r/webdev/about/rules
+    promo_policy: null
+    account: null
+    karma_required: 100
+    cadence_cap_per_week: 2
+    pain_phrases: []
+    status: warming
+    warmed_on: null
+
+  - id: r/node
+    kind: reddit
+    gate: open
+    subscribers: null
+    rules_url: https://www.reddit.com/r/node/about/rules
+    promo_policy: null
+    account: null
+    karma_required: 50
+    cadence_cap_per_week: 2
+    pain_phrases: []
+    status: warming
+    warmed_on: null
+
+  - id: r/django
+    kind: reddit
+    gate: open
+    subscribers: null
+    rules_url: https://www.reddit.com/r/django/about/rules
+    promo_policy: null
+    account: null
+    karma_required: 50
+    cadence_cap_per_week: 1
+    pain_phrases: []
+    status: warming
+    warmed_on: null
+
+  - id: stackoverflow
+    kind: qa
+    gate: never_post
+    subscribers: null
+    rules_url: https://stackoverflow.com/help/promotion
+    promo_policy: "product links in answers violate policy"
+    account: null
+    karma_required: 0
+    cadence_cap_per_week: 0
+    pain_phrases: []
+    status: research_only
+    warmed_on: null
+
+  - id: hackernews
+    kind: forum
+    gate: open
+    subscribers: null
+    rules_url: https://news.ycombinator.com/showhn.html
+    promo_policy: "Show HN, once"
+    account: null
+    karma_required: 0
+    cadence_cap_per_week: 1
+    pain_phrases: []
+    status: warming
+    warmed_on: null
+
+  - id: docs-owned
+    kind: owned
+    gate: open
+    subscribers: null
+    rules_url: null
+    promo_policy: "own property"
+    account: null
+    karma_required: 0
+    cadence_cap_per_week: 10
+    pain_phrases: []
+    status: active
+    warmed_on: 2026-09-11

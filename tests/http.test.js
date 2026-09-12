@@ -1,8 +1,13 @@
 "use strict";
 const { test, before, after } = require("node:test");
 const assert = require("node:assert/strict");
+const { execFileSync } = require("node:child_process");
+const path = require("node:path");
 const { server } = require("../server/index");
 const repo = require("../lib/repo");
+
+// the queue is date-stamped on purpose, so stamp it for today before asserting
+execFileSync(process.execPath, [path.join(__dirname, "..", "scripts", "seed.js")], { stdio: "ignore" });
 
 let base;
 before(() => new Promise((r) => server.listen(0, "127.0.0.1", () => {

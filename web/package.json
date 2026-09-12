@@ -1,0 +1,27 @@
+{
+  "name": "growth-desk-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Growth Desk. Hosted UI over the repository. Drafts moves. Never sends them.",
+  "scripts": {
+    "dev": "next dev -p 4780",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test:core": "cd .. && node --test 'tests/*.test.js'"
+  },
+  "dependencies": {
+    "next": "^15.5.4",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "next-auth": "^5.0.0-beta.29",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.1",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "typescript": "^5.9.2"
+  }
+}

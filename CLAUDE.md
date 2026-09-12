@@ -45,6 +45,20 @@ It drafts growth moves. It never sends them.
 | `landing-audit` | Before a launch, or when a page underperforms |
 | `weekly-review` | Fridays |
 
+## Two runtimes, one repo
+
+| | Local | Hosted |
+|---|---|---|
+| Entry | `node server/index.js` | `web/`, Next.js on Vercel |
+| Storage | the working tree, read and write | config from the bundle, state through the GitHub API |
+| Can it edit the ethics gate | yes | **no.** it needs a pull request |
+| Phone | no | yes |
+
+Both read the same files and run the same gate. `lib/` is shared and is plain
+JavaScript on purpose, so `node --test` proves the gate with no build step.
+
+See `docs/ARCHITECTURE-HOSTED.md`.
+
 ## Commands
 
 ```
@@ -52,6 +66,10 @@ gd log <product> <move-id> --url <url> --replies N --convos N --signups N --paid
 gd streak
 gd metrics [product] [--days 28]
 gd today <product>
+
+node scripts/seed.js            stamp the example queues with today's date
+node server/index.js            the local app on 127.0.0.1:4780
+node --test 'tests/*.test.js'   77 tests, no install needed
 ```
 
 ## Focus rotation

@@ -1,0 +1,106 @@
+{
+  "date": "2026-09-12",
+  "product": "deckle",
+  "generated_at": "2026-09-12T11:02:19Z",
+  "excluded": [
+    {
+      "channel": "stackoverflow",
+      "gate": "blocked",
+      "reason": "product links in answers violate site policy"
+    }
+  ],
+  "short": null,
+  "moves": [
+    {
+      "id": "dk-0141",
+      "type": "helpful_reply",
+      "channel": "r/node",
+      "target": {
+        "title": "Puppeteer times out on Lambda generating invoices",
+        "url": "https://www.reddit.com/r/node/comments/example1"
+      },
+      "draft": "The timeout is almost never the render. It's the cold start plus the Chromium layer.\n\nCheck your deploy size first. If you're over about 50MB unzipped you're paying an init penalty on every cold invoke, and a 10 second Lambda timeout eats it before your HTML ever gets parsed.\n\nThree things that usually fix it.\n\n1. Move Chromium to a Lambda layer instead of bundling it. Cuts the package to something that inits in under a second.\n2. Reuse the browser instance across warm invokes. Launch outside the handler, not inside it.\n3. Set a page timeout shorter than the Lambda timeout so you get a real error back instead of a silent kill.\n\nIf your invoices are template driven and you don't need arbitrary JS execution, you can also skip the browser entirely, but that's a bigger change than it sounds.",
+      "why_today": "Third time this month someone has hit the cold start on this exact path",
+      "expected": {
+        "metric": "replies",
+        "value": 4
+      },
+      "proof_refs": [],
+      "state": "queued"
+    },
+    {
+      "id": "dk-0142",
+      "type": "asset",
+      "channel": "docs-owned",
+      "target": {
+        "title": "Write the page. Stop a table splitting across pages",
+        "url": null
+      },
+      "draft": "Nobody has written this clearly. Four people asked it this month and every answer is a Stack Overflow fragment from 2019.\n\nThe page should cover break-inside avoid, why it fails inside a flex container, thead repeat, and the orphan row case nobody handles.\n\nOne real example, one working snippet, no pitch above the fold.",
+      "why_today": "Four unanswered questions this month, and the docs page is the compounding asset",
+      "expected": {
+        "metric": "signups",
+        "value": 2
+      },
+      "proof_refs": [],
+      "state": "queued"
+    },
+    {
+      "id": "dk-0143",
+      "type": "helpful_reply",
+      "channel": "r/webdev",
+      "target": {
+        "title": "wkhtmltopdf ignoring flexbox, any fix",
+        "url": "https://www.reddit.com/r/webdev/comments/example2"
+      },
+      "draft": "It's not ignoring flexbox. It's WebKit from 2012. There is no flag that fixes this.\n\nwkhtmltopdf pinned an old QtWebKit and flexbox landed after. Same story for grid, CSS variables and most of what you'd reach for now.\n\nYour options are float and table layout for the PDF stylesheet, or move to something running current Chromium. If the document is simple, floats are genuinely fine and you'll stop fighting it.",
+      "why_today": "Live thread, two hours old, no correct answer yet",
+      "expected": {
+        "metric": "replies",
+        "value": 3
+      },
+      "proof_refs": [],
+      "state": "queued",
+      "updated_at": "2026-09-12T00:08:46.780Z"
+    },
+    {
+      "id": "dk-0144",
+      "type": "soft_reply",
+      "channel": "r/django",
+      "target": {
+        "title": "How are people generating PDFs in production in 2026",
+        "url": "https://www.reddit.com/r/django/comments/example3"
+      },
+      "draft": "Three real options and the tradeoff is maintenance, not quality.\n\nWeasyPrint if your documents are simple and you want it in-process. No browser, fast, and the CSS support is narrower than you expect.\n\nPlaywright or Puppeteer if you need real browser rendering. Quality is excellent. You now own a headless Chrome in production, including the cold starts and the font handling.\n\nA hosted renderer if you'd rather not own that. I build one called Deckle, free tier is a thousand a month, so I'm not neutral here.\n\nIf you're under a hundred PDFs a month, WeasyPrint and move on.",
+      "why_today": "High intent thread, and the honest three-option answer converts better than a pitch",
+      "expected": {
+        "metric": "signups",
+        "value": 1
+      },
+      "proof_refs": [
+        {
+          "claim": "free tier is a thousand a month",
+          "cited": true
+        }
+      ],
+      "state": "queued"
+    },
+    {
+      "id": "dk-0145",
+      "type": "helpful_reply",
+      "channel": "stackoverflow",
+      "target": {
+        "title": "Blocked example. This move must never render.",
+        "url": null
+      },
+      "draft": "THIS TEXT MUST NEVER APPEAR ON ANY SCREEN.",
+      "why_today": "Seeded on purpose to prove the gate drops it",
+      "expected": {
+        "metric": "replies",
+        "value": 0
+      },
+      "proof_refs": [],
+      "state": "queued"
+    }
+  ]
+}

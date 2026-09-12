@@ -45,6 +45,9 @@ It drafts growth moves. It never sends them.
 | `landing-audit` | Before a launch, or when a page underperforms |
 | `weekly-review` | Fridays |
 
+The `landing-audit` skill writes `products/<slug>/audits/YYYY-MM-DD.json`.
+Both applications read it. Neither writes it.
+
 ## Two runtimes, one repo
 
 | | Local | Hosted |

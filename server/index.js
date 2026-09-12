@@ -21,7 +21,8 @@ const pages = {
   metrics: require("./pages/metrics"),
   channels: require("./pages/channels"),
   product: require("./pages/product"),
-  audit: require("./pages/audit")
+  audit: require("./pages/auditview"),
+  review: require("./pages/review")
 };
 
 const PUBLIC = path.join(repo.ROOT, "public");
@@ -91,6 +92,7 @@ const server = http.createServer(async (req, res) => {
     if (view === "channels") return html(res, 200, pages.channels.render(slug));
     if (view === "product") return html(res, 200, pages.product.render(slug, parts[2]));
     if (view === "audit") return html(res, 200, pages.audit.render(slug));
+    if (view === "review") return html(res, 200, pages.review.render(slug));
     if (view === "move" && parts[2]) {
       const out = pages.move.render(slug, parts[2]);
       if (!out) return notFound(res, "That move is not in today's queue, or the gate removed it.");

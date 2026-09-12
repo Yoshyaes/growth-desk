@@ -2,7 +2,7 @@
 
 **From** the PRD in `docs/PRD.md` and the fifteen artboards in `design/mockups/`
 **Date** 11 September 2026
-**Status** Phase A in progress
+**Status** Phases A to E shipped. Phase F open
 
 ---
 
@@ -128,7 +128,7 @@ Generation stays with the skill.
 
 Phases ship in this order because each one is useless without the one before it.
 
-### Phase A. Foundation and the gate
+### Phase A. Foundation and the gate  SHIPPED
 
 The gate is the first thing built, before any screen, because every screen
 depends on it and because it is the part that must never be wrong.
@@ -148,7 +148,7 @@ depends on it and because it is the part that must never be wrong.
 produce a draft through any code path in the application, and that the test
 fails if the gate is removed.
 
-### Phase B. The working loop
+### Phase B. The working loop  SHIPPED
 
 The screens from `Growth Desk Working Loop.dc.html`. This is the product.
 
@@ -167,7 +167,7 @@ The screens from `Growth Desk Working Loop.dc.html`. This is the product.
 built application. A test greps the compiled output for those strings and fails
 if either appears.
 
-### Phase C. Measurement
+### Phase C. Measurement  SHIPPED
 
 | Item | Detail |
 |---|---|
@@ -179,7 +179,7 @@ if either appears.
 **Acceptance.** A test asserts the metrics page renders exactly four tiles and
 that the strings `views`, `impressions` and `reach` appear nowhere in it.
 
-### Phase D. Configuration
+### Phase D. Configuration  SHIPPED
 
 | Item | Detail |
 |---|---|
@@ -187,7 +187,7 @@ that the strings `views`, `impressions` and `reach` appear nowhere in it.
 | Product folder | Eight files, verified and assumed chips, proof gaps |
 | Assumption backlog | Across all products, ordered by cost to test |
 
-### Phase E. Audit
+### Phase E. Audit  SHIPPED
 
 | Item | Detail |
 |---|---|
@@ -215,6 +215,30 @@ the skill where the rules already are.
 
 ---
 
+## Two decisions made during the build
+
+### The backlog does not guess
+
+The first version matched each `[assumed]` claim to a written test by word
+overlap. It did not work, and it failed quietly, which is worse. A written
+test restates an assumption in different words, so the overlap is near zero
+exactly when the linkage matters most. It would have produced a number that
+looked precise and was wrong.
+
+The backlog now reports two lists side by side. The assumptions on file, and
+the test plan that has actually been written. Linking one to the other is a
+judgement, and judgement belongs to the person reading it. The honest finding
+surfaced immediately. Deckle and Echoself have 13 assumptions each and no
+written plan for checking any of them.
+
+### The best move is ranked lexicographically, not by a weighted sum
+
+The first version scored a move at `convos * 10 + signups * 5 + replies`. A
+test caught it. Forty replies outranked three qualified conversations, which
+is the exact failure this whole system exists to avoid. Ranking is now
+lexicographic on paid, then conversations, then signups, then replies. Reach
+is a tiebreaker and nothing more.
+
 ## Test plan
 
 The test suite is deliberately lopsided. The gate and the lint get near total
@@ -227,6 +251,9 @@ coverage. The UI gets smoke tests. That ratio matches where the risk actually is
 | `schema.test.ts` | Every file in `products/` parses against its schema. Runs against the real repo, so a malformed file fails CI |
 | `no-post-button.test.ts` | Greps the build output |
 | `metrics.test.ts` | Four tiles, no view metrics, CSV round trip |
+| `store.test.js` | The write allowlist, path traversal, the GitHub backend against a mock, conditional writes, the 409 retry, and the proof that no request is sent for a config path |
+| `phase-cde.test.js` | The audit rubric and the held diff, the backlog, the weekly review ordering, and a guard that no claim is truncated at a line break |
+| `web-source.test.js` | Static checks on the Next source, which needs a toolchain to run but has absolute rules |
 
 ---
 

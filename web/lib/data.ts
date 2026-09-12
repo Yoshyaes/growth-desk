@@ -11,6 +11,8 @@ import { createStore, routed, type Store } from "@core/store";
 import * as gate from "@core/gate";
 import * as voice from "@core/voice";
 import * as yaml from "@core/yaml-lite";
+import * as backlog from "@core/backlog";
+import * as review from "@core/review";
 import type { Channel, FourNumbers, Move, Queue, Streak } from "@/types/core";
 
 let cached: Store | null = null;
@@ -96,11 +98,23 @@ export async function ethics(slug: string) {
 export async function claims(slug: string, name: string) {
   const body = await text(`products/${slug}/${name}.md`);
   const out: Array<{ tag: string; text: string }> = [];
+  let current: { tag: string; text: string } | null = null;
   for (const line of body.split("\n")) {
     const m = line.match(/^\s*-\s*\[(verified|assumed|dead|seed|stated)[^\]]*\]\s*(.+)$/i);
-    if (m) out.push({ tag: m[1].toLowerCase(), text: m[2].trim() });
+    if (m) {
+      if (current) out.push(current);
+      current = { tag: m[1].toLowerCase(), text: m[2].trim() };
+      continue;
+    }
+    // markdown wraps. claims do not.
+    if (current && /^\s{2,}\S/.test(line) && !/^\s*-\s/.test(line)) {
+      current.text += " " + line.trim();
+      continue;
+    }
+    if (current) { out.push(current); current = null; }
   }
-  return out;
+  if (current) out.push(current);
+  return out.map((c) => ({ ...c, text: c.text.replace(/\s+/g, " ").trim() }));
 }
 
 export async function docGaps(slug: string, name: string) {
@@ -225,4 +239,61 @@ export async function streak(slug: string, days = 14): Promise<Streak> {
 export async function queuedCount(slug: string) {
   const q = await queue(slug);
   return q.moves.filter((m) => (m.state ?? "queued") === "queued").length;
+}
+
+/* ---------- audits ---------- */
+
+export async function audit(slug: string, date = today()) {
+  const raw = await text(`products/${slug}/audits/${date}.json`);
+  if (!raw) return null;
+  try { return JSON.parse(raw) as Record<string, unknown>; } catch { return null; }
+}
+
+/** The most recent audit on or before `date`, looking back a fortnight. */
+export async function latestAudit(slug: string) {
+  for (let i = 0; i < 14; i++) {
+    const found = await audit(slug, daysAgo(i));
+    if (found) return found;
+  }
+  return null;
+}
+
+/* ---------- the assumption backlog ---------- */
+
+const BACKLOG_FILES = ["icp", "proof", "offers", "learnings"] as const;
+
+export async function backlogFor(slug: string) {
+  const entries: Array<{ file: string; tag: string; text: string }> = [];
+  for (const file of BACKLOG_FILES) {
+    for (const c of await claims(slug, file)) entries.push({ file, ...c });
+  }
+  const icp = await text(`products/${slug}/icp.md`);
+  return backlog.forProduct(slug, entries, backlog.parsePlans(icp));
+}
+
+export async function backlogAll() {
+  const per = await Promise.all(PRODUCTS.map((p) => backlogFor(p)));
+  return {
+    products: backlog.order(per),
+    total: per.reduce((a, p) => a + p.total, 0),
+    planned: per.reduce((a, p) => a + p.planned, 0),
+    withoutPlan: per.filter((p) => !p.hasPlan).map((p) => p.product)
+  };
+}
+
+/* ---------- the weekly review ---------- */
+
+export async function weeklyReview() {
+  const products = await Promise.all(PRODUCTS.map(async (slug) => {
+    const rows = await metrics(slug);
+    const since = daysAgo(6);
+    return {
+      slug,
+      seven: await fourNumbers(slug, 7),
+      twentyEight: await fourNumbers(slug, 28),
+      streak: await streak(slug, 14),
+      rows: rows.filter((r) => r.date >= since)
+    };
+  }));
+  return review.build(products);
 }

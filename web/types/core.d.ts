@@ -136,3 +136,69 @@ declare module "@core/store" {
     normalise(p: string): string;
   };
 }
+
+/* ---------- phase C to E ---------- */
+
+export interface RubricRow { n: number; key: string; question: string; value: number; weak: boolean }
+export interface AuditScore {
+  rows: RubricRow[]; total: number; max: number;
+  weakest: string[]; verdict: "strong" | "workable" | "weak";
+}
+export interface DiffItem {
+  id?: string; question?: string; impact: "high" | "medium" | "low";
+  current?: string; replacement?: string; why?: string; cites?: string[];
+  shippable: boolean; held: boolean; missingEvidence: string[]; heldReason: string | null;
+}
+export interface BuiltAudit {
+  exists: boolean; url: string | null; date: string | null;
+  score: AuditScore; items: DiffItem[]; shippable: DiffItem[]; held: DiffItem[];
+  pullRequest: { branch: string; files: number; merges: false } | null;
+}
+
+export interface AssumedClaim { product: string; file: string; claim: string }
+export interface TestPlan { product: string; assumption: string; test: string }
+export interface ProductBacklog {
+  product: string; assumed: AssumedClaim[]; plans: TestPlan[];
+  total: number; planned: number; hasPlan: boolean;
+}
+
+export interface BestMove {
+  product: string; move_id: string; channel: string; type: string;
+  replies: number; qualified_convos: number; signups: number; paid: number;
+}
+export interface WorstChannel { product: string; channel: string; moves: number; replies: number; convos: number }
+export interface Review {
+  headline: string;
+  worstKind: "habit" | "silence" | "conversion";
+  products: Array<{ slug: string; seven: FourNumbers; twentyEight: FourNumbers;
+                    streak: { hit: number; weekdays: number; failing: boolean } | null }>;
+  bestMove: BestMove | null;
+  worstChannel: WorstChannel | null;
+  systemFailing: boolean;
+  verdict: string;
+}
+
+declare module "@core/audit" {
+  export const RUBRIC: ReadonlyArray<{ n: number; key: string; question: string }>;
+  export const MAX_PER: number;
+  export const MAX_TOTAL: number;
+  export function score(answers: Record<string, unknown>): AuditScore;
+  export function classifyDiff(item: Record<string, unknown>, proof: Array<{ text: string }>): DiffItem;
+  export function prioritise(items: DiffItem[]): DiffItem[];
+  export function build(raw: unknown, proof: Array<{ text: string }>): BuiltAudit;
+}
+
+declare module "@core/backlog" {
+  export function parsePlans(markdown: string): Array<{ assumption: string; test: string }>;
+  export function forProduct(
+    slug: string,
+    entries: Array<{ file: string; tag: string; text: string }>,
+    plans: Array<{ assumption: string; test: string }>
+  ): ProductBacklog;
+  export function order(products: ProductBacklog[]): ProductBacklog[];
+}
+
+declare module "@core/review" {
+  export function build(products: unknown[]): Review;
+  export const LABEL: Record<string, string>;
+}

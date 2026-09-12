@@ -114,6 +114,40 @@ test("MIDDLEWARE protects everything except sign in and the auth endpoints", () 
   assert.ok(src.includes("matcher"));
 });
 
+test("PHASE C TO E. the review and audit pages exist and are wired into the nav", () => {
+  const shell = read(path.join(WEB, "components", "Shell.tsx"));
+  for (const item of ["today", "review", "metrics", "channels", "product", "audit"]) {
+    assert.ok(shell.includes(`"${item}"`), "nav is missing " + item);
+  }
+  for (const page of ["review", "audit"]) {
+    assert.ok(fs.existsSync(path.join(WEB, "app", "(desk)", "[product]", page, "page.tsx")), page + " page is missing");
+  }
+});
+
+test("REVIEW PAGE. leads with the computed headline and never picks it in the view", () => {
+  const src = read(path.join(WEB, "app", "(desk)", "[product]", "review", "page.tsx"));
+  assert.ok(src.includes("r.headline"), "the review must render the computed headline");
+  // the ordering rule lives in lib/review.js. the page must not re-sort it.
+  assert.ok(!/\.sort\(/.test(src), "the review page must not reorder what the model decided");
+  assert.ok(src.includes("r.verdict"));
+});
+
+test("AUDIT PAGE. shows the score before the diff, and renders held items", () => {
+  const src = read(path.join(WEB, "app", "(desk)", "[product]", "audit", "page.tsx"));
+  const scoreAt = src.indexOf("scorehead");
+  const diffAt = src.indexOf("Prioritized diff");
+  assert.ok(scoreAt > -1 && diffAt > -1 && scoreAt < diffAt, "the score must render before the diff");
+  assert.ok(src.includes("built.items"), "held items render in the list, not filtered out");
+  assert.ok(src.includes("heldReason"));
+});
+
+test("AUDIT PAGE. NEVER MERGES. the only control is Review on GitHub", () => {
+  const src = read(path.join(WEB, "app", "(desk)", "[product]", "audit", "page.tsx"));
+  assert.ok(src.includes("Review on GitHub"));
+  assert.ok(!/>\s*Merge/.test(src), "the audit page must not offer to merge");
+  assert.ok(!/>\s*Approve/.test(src));
+});
+
 test("THE PHONE LAYOUT EXISTS. the inspector becomes a sheet, not a hidden screen", () => {
   const css = read(path.join(WEB, "app", "globals.css"));
   assert.ok(css.includes("@media (max-width: 820px)"), "no phone breakpoint");

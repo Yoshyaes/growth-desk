@@ -5,8 +5,8 @@ import { StreakStrip } from "./StreakStrip";
 import { ThemeToggle } from "./ThemeToggle";
 
 const NAV = [
-  ["today", "Today"], ["metrics", "Metrics"], ["channels", "Channels"],
-  ["product", "Product"], ["audit", "Audit"]
+  ["today", "Today"], ["review", "Review"], ["metrics", "Metrics"],
+  ["channels", "Channels"], ["product", "Product"], ["audit", "Audit"]
 ] as const;
 
 export async function Shell({

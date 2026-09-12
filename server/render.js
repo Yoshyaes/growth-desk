@@ -3,8 +3,8 @@ const { h, raw, esc } = require("../lib/html");
 const repo = require("../lib/repo");
 
 const NAV = [
-  ["today", "Today"], ["metrics", "Metrics"], ["channels", "Channels"],
-  ["product", "Product"], ["audit", "Audit"]
+  ["today", "Today"], ["review", "Review"], ["metrics", "Metrics"],
+  ["channels", "Channels"], ["product", "Product"], ["audit", "Audit"]
 ];
 
 function streakStrip(slug) {

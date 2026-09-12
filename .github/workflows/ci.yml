@@ -1,0 +1,70 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# The gate is the reason this workflow exists. Everything else is a bonus.
+jobs:
+  core:
+    name: core, the gate and the lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # no install step, on purpose. the core is plain javascript so nothing
+      # stands between the assertion and the code it proves.
+      - name: tests
+        run: node --test 'tests/*.test.js'
+
+      - name: the gate must not be removable without failing the suite
+        run: |
+          cp lib/gate.js /tmp/gate.bak
+          node -e "
+            const fs = require('fs');
+            let s = fs.readFileSync('lib/gate.js', 'utf8');
+            s = s.replace(
+              'function gateFor(config, channelId) {',
+              'function gateFor(config, channelId) {\n  return decision(\"open\", \"MUTATED\", \"mutation-test\");',
+              1
+            );
+            fs.writeFileSync('lib/gate.js', s);
+          "
+          if node --test 'tests/*.test.js' > /dev/null 2>&1; then
+            cp /tmp/gate.bak lib/gate.js
+            echo "::error::the suite passed with the ethics gate disabled. the tests are not protecting it."
+            exit 1
+          fi
+          cp /tmp/gate.bak lib/gate.js
+          echo "the gate is protected. disabling it fails the suite."
+
+      - name: the cli runs
+        run: |
+          node bin/gd help > /dev/null
+          node bin/gd metrics > /dev/null
+          node bin/gd streak > /dev/null
+
+  web:
+    name: web, typecheck and build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm install
+        working-directory: web
+      - run: npm run typecheck
+        working-directory: web
+      - run: npm run build
+        working-directory: web
+        env:
+          AUTH_SECRET: build-time-placeholder-not-a-secret
+          GD_ALLOWED_LOGIN: ci

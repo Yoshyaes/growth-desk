@@ -107,18 +107,38 @@ test("the move api refuses a write to a blocked channel", async () => {
 });
 
 test("the move api accepts a state change on an allowed move and persists it", async () => {
-  const res = await fetch(base + "/api/move/deckle/dk-0143", {
-    method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ state: "copied" })
-  });
-  const out = await res.json();
-  assert.equal(out.ok, true);
-  assert.equal(repo.queue("deckle").moves.find((m) => m.id === "dk-0143").state, "copied");
-  // put it back so the repo ships clean
-  await fetch(base + "/api/move/deckle/dk-0143", {
-    method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ state: "queued" })
-  });
+  // this test writes to a checked-in file, so it snapshots the exact bytes and
+  // restores them. reverting through the api is not enough, since every write
+  // stamps updated_at and would leave the working tree dirty on every run.
+  const fs = require("node:fs");
+  const file = repo.queuePath("deckle");
+  const before = fs.readFileSync(file);
+
+  try {
+    const res = await fetch(base + "/api/move/deckle/dk-0143", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ state: "copied" })
+    });
+    const out = await res.json();
+    assert.equal(out.ok, true);
+    assert.equal(repo.queue("deckle").moves.find((m) => m.id === "dk-0143").state, "copied");
+  } finally {
+    fs.writeFileSync(file, before);
+  }
+
+  assert.equal(repo.queue("deckle").moves.find((m) => m.id === "dk-0143").state, "queued");
+});
+
+test("the suite does not dirty any checked-in data file", () => {
+  // scoped to data on purpose. source files are edited during normal work, so
+  // asserting a globally clean tree would fail for the wrong reason. what
+  // matters is that running the tests never rewrites the repo's own state.
+  const { execFileSync } = require("node:child_process");
+  const root = require("node:path").join(__dirname, "..");
+  const dirty = execFileSync("git", ["status", "--porcelain", "--", "products"], {
+    cwd: root, encoding: "utf8"
+  }).trim();
+  assert.equal(dirty, "", "the tests rewrote checked-in product data.\n" + dirty);
 });
 
 test("the move api rejects an invented state and an unknown move", async () => {

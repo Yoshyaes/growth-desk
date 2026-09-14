@@ -64,10 +64,14 @@ jobs:
       # what CI is testing.
       - run: npm ci
         working-directory: web
-      - run: npm run typecheck
-        working-directory: web
+
+      # build before typecheck, not after. `next build` generates
+      # next-env.d.ts and .next/types, and tsconfig includes both. Running
+      # tsc first on a clean checkout fails on files that do not exist yet.
       - run: npm run build
         working-directory: web
         env:
           AUTH_SECRET: build-time-placeholder-not-a-secret
           GD_ALLOWED_LOGIN: ci
+      - run: npm run typecheck
+        working-directory: web

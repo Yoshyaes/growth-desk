@@ -3,6 +3,9 @@ node_modules/
 *.log
 .env
 .env.*
+# the example carries no secrets and is the deploy documentation, so it ships
+!.env.example
+!**/.env.example
 drafts-scratch/
 
 # Generated daily state. The example files are the checked-in source, and
@@ -10,3 +13,7 @@ drafts-scratch/
 # ones through the GitHub API, which commits them directly.
 products/*/queue/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9].json
 products/*/audits/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9].json
+
+# Next.js build output and generated ambient types
+web/.next/
+web/next-env.d.ts

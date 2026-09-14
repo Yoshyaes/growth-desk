@@ -54,11 +54,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # no npm cache yet. there is no package-lock.json committed, and
+      # setup-node fails outright when the lock file it caches on is missing.
+      # add `cache: npm` back once web/package-lock.json is checked in.
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-          cache-dependency-path: web/package-lock.json
       - run: npm install
         working-directory: web
       - run: npm run typecheck

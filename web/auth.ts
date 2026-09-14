@@ -17,6 +17,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
   pages: { signIn: "/signin" },
   callbacks: {
+    /**
+     * The gate on every route the middleware matcher covers.
+     *
+     * Without this, `export { auth as middleware }` does not block anything.
+     * It only attaches session info to the request, and every page stays
+     * reachable signed out. Auth.js v5 needs this callback for the
+     * middleware to actually refuse. It fails closed.
+     */
+    authorized({ auth: session, request }) {
+      if (request.nextUrl.pathname.startsWith("/signin")) return true;
+      return Boolean(session?.user);
+    },
     async signIn({ profile }) {
       const login = String(profile?.login ?? "").toLowerCase();
       if (!ALLOWED.length) return false;       // fail closed. no allowlist, no entry

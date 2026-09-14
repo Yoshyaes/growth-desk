@@ -14,8 +14,14 @@ compounds the results into a learnings library that no vendor can take away.
 git clone https://github.com/Yoshyaes/growth-desk.git
 cd growth-desk
 export PATH="$PATH:$PWD/bin"
-gd streak
+node scripts/seed.js     # stamp the example queues for today
+node server/index.js     # http://127.0.0.1:4780
 ```
+
+Dated files under `queue/` and `audits/` are generated and not committed.
+The `example.json` beside them is the source. With no queue for today the app
+shows its empty state, which is correct. A stale queue presented as today's
+work would be a lie.
 
 Then open Claude Code in this directory and run the `daily-moves` skill.
 

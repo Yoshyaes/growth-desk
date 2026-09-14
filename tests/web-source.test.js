@@ -107,6 +107,16 @@ test("AUTH FAILS CLOSED. an empty allowlist lets nobody in", () => {
   assert.ok(/if \(!ALLOWED\.length\) return false/.test(src), "auth must refuse when the allowlist is empty");
 });
 
+test("MIDDLEWARE actually blocks. the authorized callback is present and fails closed", () => {
+  // `export { auth as middleware }` alone does not refuse anything in Auth.js
+  // v5. it only attaches session info. without this callback every page is
+  // reachable signed out, which is exactly the bug a build cannot catch.
+  const src = read(path.join(WEB, "auth.ts"));
+  assert.ok(/authorized\s*\(/.test(src), "auth.ts must define an authorized callback");
+  assert.ok(/return Boolean\(session\?\.user\)/.test(src),
+    "the authorized callback must deny by default rather than allow");
+});
+
 test("MIDDLEWARE protects everything except sign in and the auth endpoints", () => {
   const src = read(path.join(WEB, "middleware.ts"));
   assert.ok(src.includes("api/auth"));

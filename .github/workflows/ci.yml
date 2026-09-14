@@ -75,3 +75,9 @@ jobs:
           GD_ALLOWED_LOGIN: ci
       - run: npm run typecheck
         working-directory: web
+
+      # informational. a permanently red build teaches people to ignore red
+      # builds, and the one open finding is correctly ignored. see
+      # docs/SECURITY-NOTES.md before acting on anything here.
+      - run: npm audit --audit-level=critical || true
+        working-directory: web

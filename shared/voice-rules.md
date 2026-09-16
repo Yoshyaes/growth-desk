@@ -36,6 +36,66 @@ revolutionize, foster, subsequently, in conclusion
 
 Also banned. Any analogy to a conductor or to music.
 
+## Structure. This matters more than the word list
+
+Your own TAG notes say it. Structural tells are more diagnostically important
+than the banned word list alone. A draft can clear all 105 banned words and
+still read as machine-written, because the giveaway is rhythm and shape.
+
+`lib/structure.js` checks these. It is advisory and never blocks a copy.
+
+### The flip
+
+Never write the not-X-it's-Y move. Splitting it across two sentences does not
+hide it, it is the same rhetorical shape.
+
+- Bad. "The timeout is almost never the render. It's the cold start."
+- Bad. "It's not ignoring flexbox. It's WebKit from 2012."
+- Good. "Almost always the cold start, not the render itself."
+- Good. "wkhtmltopdf pinned an ancient QtWebKit build."
+
+### Announced lists
+
+Never announce a count and then deliver it. Three things that fix it, two real
+options, four reasons. Nobody talks like that.
+
+Never use a numbered list inside a reply. Fine in docs, a tell in a comment.
+
+### Rhythm
+
+- Contractions are mandatory. Their absence is the single loudest signal.
+- Vary sentence length hard. If every sentence is within four words of the
+  others, break one in half.
+- At least one short sentence. Three or four words. It resets the ear.
+- Sentence fragments are allowed and welcome.
+
+### Other moves that read as generated
+
+- The X, Y and Z triplet. Perfect three-part lists are a rhythm a person rarely
+  hits twice in a row.
+- Not only X but also Y.
+- The from X to Y range.
+- Diagnosing before answering. What you're describing is, it sounds like, the
+  issue here is. Just answer.
+- A colon dragging a list into prose.
+- Intensity with nothing behind it. Bold, remarkable, fascinating, powerful.
+  Say the number instead.
+- The tidy closing line. And that makes all the difference. Stop one sentence
+  earlier.
+- The same bridge phrase twice. One is voice, two is a habit.
+
+### Room-specific register
+
+From the Yoshyaes Reddit rules. Match the length and pace of the specific
+thread rather than writing one house style everywhere. An essayistic room and a
+casual room get different comments, and a two-line thread does not get a
+six-paragraph answer.
+
+### The test before anything is copied
+
+Would you say this out loud to a person who knows the subject. If any sentence
+would sound like a press release read aloud, rewrite that sentence.
+
 ## What good looks like
 
 - Straight to the point. The first sentence carries the whole idea.

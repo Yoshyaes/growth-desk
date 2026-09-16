@@ -6,6 +6,13 @@ const path = require("node:path");
 const { server } = require("../server/index");
 const repo = require("../lib/repo");
 
+// snapshot product state BEFORE seeding, so the clean-tree assertion measures
+// what the suite changed rather than what happens to be uncommitted.
+const REPO = path.join(__dirname, "..");
+const productStateBefore = execFileSync("git", ["status", "--porcelain", "--", "products"], {
+  cwd: REPO, encoding: "utf8"
+});
+
 // the queue is date-stamped on purpose, so stamp it for today before asserting
 execFileSync(process.execPath, [path.join(__dirname, "..", "scripts", "seed.js")], { stdio: "ignore" });
 
@@ -130,15 +137,14 @@ test("the move api accepts a state change on an allowed move and persists it", a
 });
 
 test("the suite does not dirty any checked-in data file", () => {
-  // scoped to data on purpose. source files are edited during normal work, so
-  // asserting a globally clean tree would fail for the wrong reason. what
-  // matters is that running the tests never rewrites the repo's own state.
-  const { execFileSync } = require("node:child_process");
-  const root = require("node:path").join(__dirname, "..");
-  const dirty = execFileSync("git", ["status", "--porcelain", "--", "products"], {
-    cwd: root, encoding: "utf8"
-  }).trim();
-  assert.equal(dirty, "", "the tests rewrote checked-in product data.\n" + dirty);
+  // compared against the snapshot taken before the suite ran. asserting a
+  // clean tree outright would fail whenever a real edit is in progress, which
+  // is the wrong reason to fail and teaches people to ignore it.
+  const after = execFileSync("git", ["status", "--porcelain", "--", "products"], {
+    cwd: REPO, encoding: "utf8"
+  });
+  assert.equal(after, productStateBefore,
+    "running the tests changed checked-in product data.\nbefore:\n" + productStateBefore + "after:\n" + after);
 });
 
 test("the move api rejects an invented state and an unknown move", async () => {

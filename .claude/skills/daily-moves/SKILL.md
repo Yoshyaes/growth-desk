@@ -45,6 +45,39 @@ Expected: <a number, so it can be scored later>
 
 Close the run with the `gd log` command line Fred will paste after he sends.
 
+## Write like a person, not like a tool
+
+The banned word list was never the hard part. A draft can clear all 105 words
+and still read as machine-written, because the giveaway is shape. Fred's own
+TAG notes say structural tells matter more than the word list alone.
+
+Before output, read the draft against `shared/voice-rules.md` section
+"Structure. This matters more than the word list", and check these by hand.
+
+- **No not-X-it's-Y.** Splitting it across two sentences does not hide it.
+  Not "the timeout is never the render, it's the cold start".
+  Write "almost always the cold start, not the render itself".
+- **Never announce a count.** No "three things that fix it", no "two real
+  options". Nobody talks that way.
+- **No numbered list inside a reply.** Fine in a doc, a tell in a comment.
+- **Contractions in every draft.** Their absence is the loudest single signal.
+- **Vary sentence length hard, and include one short sentence.** Three or four
+  words. It resets the ear. Fragments are welcome.
+- **No X, Y and Z triplets.** Perfect three-part lists are a rhythm a person
+  rarely hits twice running.
+- **Do not diagnose before answering.** No "what you're describing is".
+- **No tidy closing line.** Stop one sentence earlier than feels finished.
+- **Match the room.** An essayistic thread and a casual one get different
+  registers, and a two-line question does not get six paragraphs back.
+
+The last test, before anything is output. Would Fred say this out loud to
+someone who knows the subject. If a sentence would sound like a press release
+read aloud, rewrite that sentence.
+
+`lib/structure.js` checks most of this and the editor shows it as AI tells.
+It is advisory. A clean lint is not the same as sounding human, so read the
+draft yourself.
+
 ## Hard rules
 
 - **Never auto-post. Never call a write API. Output text only.**

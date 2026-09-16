@@ -46,8 +46,16 @@ test("a banned word inside a longer word is not a hit", () => {
 });
 
 test("clean copy reports clean", () => {
-  const r = voice.lint("The timeout is almost never the render. It is the cold start.", BANNED);
+  const r = voice.lint("Almost always the cold start, not the render itself.", BANNED);
   assert.equal(r.clean, true, JSON.stringify(r.hits));
+});
+
+test("the old fixture is caught, because it was the flip", () => {
+  // this exact sentence used to be the clean-copy fixture, and it is the
+  // not-X-it's-Y move that reads as machine-written.
+  const r = voice.lint("The timeout is almost never the render. It is the cold start.", BANNED);
+  assert.equal(r.clean, false);
+  assert.ok(r.hits.some((h) => h.rule === "antithesis-flip"));
 });
 
 test("hits carry an index, context and a fix label", () => {

@@ -215,6 +215,32 @@ the skill where the rules already are.
 
 ---
 
+## The phone layout, designed by rendering it
+
+The phone CSS was written blind, from the desktop mockups. Rendering it found
+four things reading could not.
+
+1. **A false alarm that nearly caused a redesign.** Headless Chrome clamps its
+   viewport to 500px here, so `--window-size=390,844` produces a 390px crop of
+   a 500px layout. Everything looked clipped. Nothing was. `scripts/shot.js`
+   drives Chrome through DevTools Protocol and sets a real device viewport,
+   which is the only way to trust a phone screenshot in this environment.
+2. **The line clamp bled a half-rendered line.** Clamping the element that also
+   carries the padding lets the next line show through in the padding. The
+   clamp now sits on an inner span.
+3. **Blank lines broke the clamp.** The card preview now collapses newlines so
+   the clamp counts real lines of text. The true draft, breaks and all, is what
+   gets copied and what the editor shows.
+4. **Copy sat below the fold.** It is the only send step in the product, so on
+   a phone it is pinned above the tab bar. Sticky was not enough, because the
+   draft is taller than the screen and a sticky element only sticks once it has
+   been scrolled to.
+
+One design decision rather than a bug. On a phone the ethics gate states the
+count and shows two examples, with the rest one tap away. It is the first thing
+seen every morning, and on Echoself the full list costs half the screen before
+a single move is visible. The statement survives. Desktop still shows all of it.
+
 ## Two decisions made during the build
 
 ### The backlog does not guess

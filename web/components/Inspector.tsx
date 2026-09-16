@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 export function InspectorRow({ k, v, mono }: { k: string; v: ReactNode; mono?: boolean }) {
   return (
@@ -15,16 +15,15 @@ export function InspectorRow({ k, v, mono }: { k: string; v: ReactNode; mono?: b
  * The inspector is the design thesis. The constraints are always on screen.
  *
  * On desktop it is a fixed 320px column that never collapses. On a phone it
- * becomes a sheet one tap from any draft, which is the smallest change that
- * keeps the rule true on a 390px screen.
+ * becomes a sheet, opened from the Rules button in the top bar, which is the
+ * smallest change that keeps the rule true on a 390px screen.
+ *
+ * The open state lives on document.body rather than in React, because the
+ * button that opens it sits in the top bar and the sheet sits at the end of
+ * the shell. One class on the body is simpler than lifting state across them.
  */
 export function Inspector({ children }: { children: ReactNode }) {
-  const [open, setOpen] = useState(false);
-
-  function toggle(next: boolean) {
-    setOpen(next);
-    document.body.classList.toggle("sheet-open", next);
-  }
+  const close = () => document.body.classList.remove("sheet-open");
 
   return (
     <>
@@ -33,13 +32,9 @@ export function Inspector({ children }: { children: ReactNode }) {
         {children}
       </aside>
 
-      <button className="btn inspectorbtn" type="button" onClick={() => toggle(true)} aria-expanded={open}>
-        Rules
-      </button>
-
-      <div className="sheetscrim" onClick={() => toggle(false)} aria-hidden="true" />
-      <div className="sheet" role="dialog" aria-label="Rules in force" aria-modal={open}>
-        <div className="grip" />
+      <div className="sheetscrim" onClick={close} aria-hidden="true" />
+      <div className="sheet" role="dialog" aria-label="Rules in force">
+        <div className="grip" onClick={close} />
         <span className="label">Rules in force</span>
         {children}
       </div>

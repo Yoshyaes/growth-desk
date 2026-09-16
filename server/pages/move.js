@@ -57,11 +57,11 @@ function render(slug, moveId) {
       <div style="display:flex;flex-direction:column;gap:10px">${proof}</div>
     </div>` : ""}
 
-    <div style="display:flex;gap:8px;align-items:center">
+    <div class="stickyactions">
+      <button class="btn primary" type="button" data-copy-editor="${esc(m.id)}">Copy draft</button>
       <a class="btn" href="/${esc(slug)}/today">Back</a>
       <button class="btn" type="button" data-skip="${esc(m.id)}">Skip today</button>
-      <button class="btn primary" type="button" data-copy-editor="${esc(m.id)}">Copy draft</button>
-      <span class="plain" style="margin-left:auto">There is no Post button. Copying is the send step.</span>
+      <span class="plain">There is no Post button. Copying is the send step.</span>
     </div>`;
 
   const g = m.gateDecision || {};

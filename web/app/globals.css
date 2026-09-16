@@ -157,12 +157,17 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
 .move .rank { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--ink-faint); }
 .move .target { padding: 14px 18px 0; font-size: 13px; color: var(--ink-muted); }
 .move .target a { font-weight: 500; }
+/* the clamp sits on the inner span, not on the padded box. clamping an
+   element that also carries the padding lets the next line show through
+   in the padding area, which reads as a rendering bug. */
 .move .draft {
   margin: 12px 18px 0; padding: 14px 16px; background: var(--sunk); border-radius: var(--radius);
+  overflow: hidden;
+}
+.move .draft > span {
   font-family: var(--mono); font-size: 12.5px; line-height: 1.65; color: var(--ink);
-  white-space: pre-wrap; max-height: 108px; overflow: hidden;
-  -webkit-mask-image: linear-gradient(#000 62%, transparent 100%);
-  mask-image: linear-gradient(#000 62%, transparent 100%);
+  display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical;
+  overflow: hidden; overflow-wrap: anywhere;
 }
 .move .foot { display: flex; align-items: center; gap: 10px; padding: 14px 18px; }
 .move .why { font-size: 12px; color: var(--ink-faint); }
@@ -329,7 +334,7 @@ textarea.editor {
   /* cards */
   .move > .head { padding: 12px 14px; gap: 8px; }
   .move .target, .move .foot { padding-left: 14px; padding-right: 14px; }
-  .move .draft { margin: 10px 14px 0; padding: 12px 13px; font-size: 12px; max-height: 84px; }
+  .move .draft { margin: 10px 14px 0; padding: 12px 13px; }
   .move .foot { flex-wrap: wrap; }
   .move .acts { margin-left: 0; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .move .acts .btn { text-align: center; padding: 11px 12px; }
@@ -350,14 +355,21 @@ textarea.editor {
   .chrow .cap { margin-left: auto; }
   .chrow .seg { display: none; }
 
-  /* the copy button is thumb reachable on the draft screen */
+  /* Copy is the only send step in the product, so on a phone it is pinned
+     above the tab bar rather than left to sit below the fold. sticky is not
+     enough here, because the draft is taller than the screen and a sticky
+     element only sticks once it has been scrolled to. */
   .stickyactions {
-    position: sticky; bottom: 56px; z-index: 10;
+    position: fixed; left: 0; right: 0; bottom: 44px; z-index: 15;
     background: var(--surface); border-top: 1px solid var(--rule);
-    margin: 0 -16px; padding: 12px 16px calc(12px);
+    margin: 0; padding: 10px 16px;
     display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    box-shadow: 0 -6px 18px rgba(0,0,0,0.06);
   }
-  .stickyactions .btn { text-align: center; padding: 12px; }
+  :root[data-theme="dark"] .stickyactions { box-shadow: 0 -6px 18px rgba(0,0,0,0.4); }
+  /* room for the pinned bar plus the tab row */
+  .content { padding-bottom: 128px; }
+  .stickyactions .btn { text-align: center; padding: 11px 10px; }
   .stickyactions .btn.primary { grid-column: 1 / -1; order: -1; }
   .stickyactions .plain { display: none; }
 
@@ -423,3 +435,80 @@ textarea.editor {
   .rubricrow .q { flex: 1 1 100%; order: -1; }
   .meter i { width: 22px; height: 8px; }
 }
+
+/* ============================================================
+   PHONE, second pass
+   Written after actually rendering at 390px. The first pass
+   overflowed, because .mobilebar is a flex item in a column
+   container and its max-content width set the page width.
+   ============================================================ */
+
+@media (max-width: 820px) {
+  /* nothing may be wider than the screen */
+  .app { width: 100%; max-width: 100%; }
+  .app > * { min-width: 0; max-width: 100%; }
+  .main, .scroll, .content { min-width: 0; max-width: 100%; }
+  .move { min-width: 0; max-width: 100%; }
+
+  /* long draft text has to break rather than push the page out */
+  .move .draft, .move .target, .gatenotice p { overflow-wrap: anywhere; }
+
+  /* top bar. the count drops to its own line instead of overflowing */
+  .topbar { padding: 14px 16px 12px; row-gap: 4px; }
+  .topbar h1 { font-size: 17px; }
+  .topbar .when { font-size: 11px; }
+  .topbar .right { margin-left: auto; gap: 6px; }
+  .topbar .right .mono, .topbar .right span:not(.desktoponly) { font-size: 11px; }
+
+  /* product switcher. three fit without scrolling once it stops
+     forcing the page width */
+  .mobilebar { gap: 4px; padding: 8px 12px; }
+  .mobilebar .prod { padding: 5px 9px; font-size: 13px; gap: 5px; }
+  .mobilebar .prod .n { padding: 0 5px; font-size: 10px; }
+
+  /* the card is the unit of work. three should be reachable with one
+     thumb scroll, so the draft preview is shorter and the chrome tighter */
+  .move > .head { padding: 10px 12px; gap: 6px; row-gap: 4px; }
+  .move .id { font-size: 11px; }
+  .move .type { font-size: 10px; letter-spacing: 0.08em; }
+  .move .chan { font-size: 12px; }
+  .move .rank { display: none; }
+  .badge { padding: 3px 7px; font-size: 10px; letter-spacing: 0.08em; }
+  .move .target { padding: 10px 12px 0; font-size: 12.5px; }
+  .move .draft { margin: 8px 12px 0; padding: 10px 12px; }
+  .move .foot { padding: 10px 12px; gap: 8px; row-gap: 10px; }
+  .move .why { font-size: 11px; }
+  .move .acts { grid-template-columns: 1fr 1fr; gap: 6px; }
+  .move .acts .btn { padding: 10px 8px; font-size: 13px; }
+
+  /* six tabs at 390px. smaller type and tight padding, no scrolling,
+     because a bottom bar that scrolls hides its own destinations */
+  .mobiletabs a { font-size: 10px; letter-spacing: 0.01em; padding: 11px 2px 10px; }
+
+  /* the gate notice is the first thing read on this screen */
+  .gatenotice { padding: 12px 0 12px 14px; }
+  .gatenotice p { font-size: 12.5px; }
+  .gatenotice code { font-size: 11.5px; }
+
+  .content { gap: 18px; }
+  .empty { padding: 32px 20px; }
+  .plain { font-size: 12.5px; }
+}
+
+/* ---------- gate notice disclosure, phone only ---------- */
+
+.gate-more { display: none; }
+
+@media (max-width: 820px) {
+  .gatenotice:not(.is-open) .gate-extra { display: none; }
+  .gate-more {
+    display: inline-block; background: none; border: none; padding: 2px 0;
+    font-family: var(--ui); font-size: 12.5px; font-weight: 600;
+    color: var(--blocked-fg); text-decoration: underline;
+    text-underline-offset: 3px; cursor: pointer;
+  }
+  .gatenotice.is-open .gate-more { display: none; }
+
+  .move .draft > span { -webkit-line-clamp: 3; font-size: 11.5px; line-height: 1.55; }
+}
+

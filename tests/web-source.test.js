@@ -166,6 +166,40 @@ test("THE PHONE LAYOUT EXISTS. the inspector becomes a sheet, not a hidden scree
   assert.ok(css.includes("env(safe-area-inset-bottom)"), "bottom nav must clear the home indicator");
 });
 
+test("PHONE. the draft clamp sits on the inner span, not the padded box", () => {
+  // clamping the element that also carries the padding lets the next line
+  // show through in the padding, which reads as a rendering bug.
+  const css = read(path.join(WEB, "app", "globals.css"));
+  assert.ok(/\.move \.draft > span\s*\{[^}]*-webkit-line-clamp/s.test(css),
+    "the clamp must be on .move .draft > span");
+  assert.ok(!/\.move \.draft\s*\{[^}]*-webkit-line-clamp/s.test(css),
+    "the padded box itself must not be clamped");
+
+  const preview = read(path.join(WEB, "components", "DraftPreview.tsx"));
+  assert.ok(preview.includes("<span>"), "the preview must wrap its text in a span");
+  assert.ok(/replace\(\/\\s\*\\n\\s\*\/g/.test(preview),
+    "the preview must collapse newlines so the clamp counts real lines");
+});
+
+test("PHONE. the gate notice collapses after two examples but still states the count", () => {
+  const src = read(path.join(WEB, "components", "GateNotice.tsx"));
+  assert.ok(src.includes("channel{items.length === 1"), "the count is always stated");
+  assert.ok(src.includes("gate-extra"), "examples beyond the second are collapsible");
+  assert.ok(src.includes("and {extra} more"), "the rest must be reachable");
+
+  const css = read(path.join(WEB, "app", "globals.css"));
+  assert.ok(/@media \(max-width: 820px\)[\s\S]*gate-extra/.test(css),
+    "the collapse must be phone only. desktop has room for the whole list");
+});
+
+test("PHONE. the rules button lives in the top bar, within thumb reach", () => {
+  const shell = read(path.join(WEB, "components", "Shell.tsx"));
+  assert.ok(shell.includes("RulesButton"), "the way into the sheet must be in the shell top bar");
+  const inspector = read(path.join(WEB, "components", "Inspector.tsx"));
+  assert.ok(!inspector.includes("inspectorbtn"),
+    "the inspector must not also render a button, or there are two");
+});
+
 test("TOKENS. the hosted stylesheet carries the canonical palette", () => {
   const css = read(path.join(WEB, "app", "globals.css"));
   const tokens = ["#ECEEF0", "#15181B", "#33406B", "#3F6B4A", "#8A6A16", "#9B3B2C", "#111417", "#8B9AD1"];

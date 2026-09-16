@@ -14,6 +14,18 @@ const TYPE_LABEL = {
   asset: "asset", partnership: "partnership"
 };
 
+/**
+ * The card shows a preview, not the draft.
+ *
+ * Blank lines are collapsed so line-clamp counts real lines of text. Keeping
+ * the paragraph breaks here made the clamp land on an empty line and bleed a
+ * half-rendered line underneath it. The true text, breaks and all, is what
+ * gets copied and what the editor shows.
+ */
+function preview(draft) {
+  return String(draft || "").replace(/\s*\n\s*/g, " ").replace(/\s{2,}/g, " ").trim();
+}
+
 function moveCard(slug, m, rank) {
   const state = m.state || "queued";
   const target = m.target || {};
@@ -32,7 +44,8 @@ function moveCard(slug, m, rank) {
       <span class="rank">#${rank}</span>
     </div>
     <div class="target">${title}</div>
-    <pre class="draft" data-draft>${esc(m.draft)}</pre>
+    <div class="draft"><span>${esc(preview(m.draft))}</span></div>
+    <template data-draft>${esc(m.draft)}</template>
     <div class="foot">
       <span class="why">Expected ${esc(exp.value)} ${esc(METRIC_WORD[exp.metric] || exp.metric || "")}</span>
       <span class="acts">
@@ -56,10 +69,16 @@ function render(slug) {
   let body = "";
 
   if (exclUnique.length) {
-    body += `<div class="gatenotice">
+    // the statement is always made. on a phone the examples collapse after two,
+    // because this is the first thing seen every single morning and the whole
+    // list costs half the screen on echoself.
+    const extra = Math.max(0, exclUnique.length - 2);
+    body += `<div class="gatenotice" data-gate>
       <span class="label">Ethics gate</span>
       <p>${exclUnique.length} channel${exclUnique.length === 1 ? "" : "s"} excluded from today's run.</p>
-      ${exclUnique.map((e) => `<p><code>${esc(e.channel)}</code> . ${esc(e.reason)}</p>`).join("")}
+      ${exclUnique.map((e, i) =>
+        `<p class="${i >= 2 ? "gate-extra" : ""}"><code>${esc(e.channel)}</code> . ${esc(e.reason)}</p>`).join("")}
+      ${extra ? `<button class="gate-more" type="button" data-gate-more>and ${extra} more</button>` : ""}
     </div>`;
   }
 

@@ -59,6 +59,17 @@ function globalRules() {
 }
 
 function page({ slug, page: pg, title, when, actions, body, inspector }) {
+  const productLinks = repo.products().map((p) => {
+    const q = repo.queue(p);
+    const waiting = q.moves.filter((m) => (m.state || "queued") === "queued").length;
+    return `<a class="prod ${p === slug ? "on" : ""}" href="/${esc(p)}/${esc(pg)}">
+      <span>${esc(p)}</span><span class="ab">${esc(repo.slugAbbrev(p))}</span><span class="n">${waiting}</span>
+    </a>`;
+  }).join("");
+
+  const tabs = NAV.map(([k, t]) =>
+    `<a class="${k === pg ? "on" : ""}" href="/${esc(slug)}/${k}">${t}</a>`).join("");
+
   return `<!doctype html>
 <html lang="en" data-theme="light">
 <head>
@@ -73,6 +84,11 @@ function page({ slug, page: pg, title, when, actions, body, inspector }) {
 </head>
 <body>
 <div class="app">
+  <div class="mobilebar">
+    ${productLinks}
+    <span class="spacer"></span>
+    <button class="btn" id="theme-m" type="button">Theme</button>
+  </div>
   ${rail(slug, pg).__raw}
   <div class="main">
     <div class="topbar">
@@ -80,7 +96,8 @@ function page({ slug, page: pg, title, when, actions, body, inspector }) {
       <div class="when mono">${esc(when || "")}</div>
       <div class="right">
         ${actions || ""}
-        <button class="btn" id="theme" type="button">Theme</button>
+        <button class="btn inspectorbtn" id="rules" type="button">Rules</button>
+        <span class="desktoponly"><button class="btn" id="theme" type="button">Theme</button></span>
       </div>
     </div>
     <div class="scroll"><div class="content">${body}</div></div>
@@ -89,6 +106,15 @@ function page({ slug, page: pg, title, when, actions, body, inspector }) {
     <span class="label">Rules in force</span>
     ${inspector || globalRules()}
   </div>
+
+  <div class="sheetscrim" id="scrim"></div>
+  <div class="sheet" id="sheet" role="dialog" aria-label="Rules in force">
+    <div class="grip"></div>
+    <span class="label">Rules in force</span>
+    ${inspector || globalRules()}
+  </div>
+
+  <nav class="mobiletabs">${tabs}</nav>
 </div>
 <script src="/app.js"></script>
 </body>

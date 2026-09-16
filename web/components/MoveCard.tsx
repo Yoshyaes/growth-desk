@@ -3,7 +3,7 @@ import type { Move } from "@/types/core";
 import { GateBadge } from "./GateBadge";
 import { CopyButton } from "./CopyButton";
 import { SkipButton } from "./SkipButton";
-import { DraftText } from "./DraftText";
+import { DraftPreview } from "./DraftPreview";
 
 const TYPE_LABEL: Record<string, string> = {
   helpful_reply: "helpful reply", soft_reply: "soft reply", original_post: "post",
@@ -40,7 +40,7 @@ export function MoveCard({ product, move, rank }: { product: string; move: Move;
         )}
       </div>
 
-      <DraftText text={move.draft} />
+      <DraftPreview text={move.draft} />
 
       <div className="foot">
         <span className="why">

@@ -24,10 +24,17 @@
   var product = location.pathname.split("/").filter(Boolean)[0];
 
   document.addEventListener("click", function (e) {
-    var t = e.target.closest("[data-copy], [data-copy-editor], [data-skip], #theme");
+    var t = e.target.closest("[data-copy], [data-copy-editor], [data-skip], [data-gate-more], #theme, #theme-m, #rules, #scrim");
     if (!t) return;
 
-    if (t.id === "theme") {
+    if (t.id === "rules") { document.body.classList.add("sheet-open"); return; }
+    if (t.hasAttribute("data-gate-more")) {
+      t.closest("[data-gate]").classList.add("is-open");
+      return;
+    }
+    if (t.id === "scrim") { document.body.classList.remove("sheet-open"); return; }
+
+    if (t.id === "theme" || t.id === "theme-m") {
       var next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
       document.documentElement.dataset.theme = next;
       try { localStorage.setItem("gd-theme", next); } catch (err) {}
@@ -36,7 +43,9 @@
 
     if (t.hasAttribute("data-copy")) {
       var card = t.closest("[data-move]");
-      var draft = card.querySelector("[data-draft]").textContent;
+      var draft = card.querySelector("[data-draft]").innerHTML
+        .replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'").replace(/&amp;/g, "&");
       copyText(draft).then(function () {
         t.textContent = "Copied";
         t.classList.add("copied");

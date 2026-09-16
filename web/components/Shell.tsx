@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { PRODUCTS, abbrev, queuedCount, streak } from "@/lib/data";
 import { StreakStrip } from "./StreakStrip";
 import { ThemeToggle } from "./ThemeToggle";
+import { RulesButton } from "./RulesButton";
 
 const NAV = [
   ["today", "Today"], ["review", "Review"], ["metrics", "Metrics"],
@@ -57,6 +58,7 @@ export async function Shell({
           <h1>{title}</h1>
           <div className="when mono">{when ?? ""}</div>
           <div className="right">
+            <RulesButton />
             <span className="desktoponly"><ThemeToggle /></span>
           </div>
         </div>
